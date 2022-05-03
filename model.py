@@ -11,7 +11,7 @@ class ResBlockLow(tf.keras.Model):
         name = 'ResBlock',
         **kwarg
     ):
-        super(ResBlockLow, self).__init__()
+        super(ResBlockLow, self).__init__(name = name + f'{stage}-{block}', **kwargs)
         self.stride = stride
         self.bn1 = BatchNorm()
         self.conv1 = Conv2d(filters = filter,
@@ -47,7 +47,7 @@ class ResNetLow(tf.keras.Model):
         name = 'ResNet',
         **kwargs
     ):
-        super(ResNetLow, self).__init__()
+        super(ResNetLow, self).__init__(name = name, **kwargs)
         self.architecture = architecture
         self.net_layers = {}
         self.net_layers['network_stem'] = Conv2d(filters = architecture.get('filters')[0],
