@@ -9,7 +9,7 @@ def random_crop(img, *args):
 
 def noising(img, *args):
     size = tf.sahpe(img)
-    pca = PCA(size[0] svd_solver='full')
+    pca = PCA(size[0], svd_solver='full')
     noise = np.random.normal(0, 0.1, size[:2])
     noise = pca.fit(noise).components_
     noise = tf.stack([noise]*3, axis=-1)
