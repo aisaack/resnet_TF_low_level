@@ -48,33 +48,26 @@ class ResNetLow(tf.keras.Model):
         **kwargs
     ):
         super(ResNetLow, self).__init__(name = name, **kwargs)
-        self.architecture = architecture
-        self.net_layers = {}
-        self.net_layers['network_stem'] = Conv2d(filters = architecture.get('filters')[0],
-                                                 kernel_size = (3, 3),
-                                                 strides = (1, 1),
-                                                 padding = 'same')
+        self.net_layers = []
+        self.net_layers.append(Conv2d(filters = architecture.get('filters')[0],
+                                     kernel_size = (3, 3),
+                                     strides = (1, 1),
+                                     padding = 'same'))
         for stage, (filter, stride, blocks) in enumerate(zip(architecture.get('filters'),
                                                             architecture.get('strides'),
                                                             architecture.get('blocks'))):
             for block in range(blocks):
                 if block != 0:
                     stride = 1
-                self.net_layers[f'{stage}-{block}'] = ResBlockLow(stage, block, filter, stride)
-        self.net_layers['network_head'] = FC(units = architecture.get('num_class'))
+                self.net_layers.append(ResBlockLow(stage, block, filter, stride))
+        self.net_layers.appen(FC(units = architecture.get('num_class')))
 
     def call(self, X):
-        x = self.net_layers['network_stem'](X)
-        for stage, (filter, stride, blocks) in enumerate(zip(self.architecture.get('filters'),
-                                                            self.architecture.get('strides'),
-                                                            self.architecture.get('blocks'))):
-            for block in range(blocks):
-                x = self.net_layers[f'{stage}-{block}'](x)
-                print(f'{stage+2}-{block+1}: {tf.shape(x)}')
-
+        x = X
+        for layer in self.net_layer[:-1]:
+            x = layer(x)
         x = tf.math.reduce_mean(x, axis = [1, 2])
-        x = self.net_layers['network_head'](x)
-
+        x = self.net_layers[-1](x)
         return x
 
 if __name__ == '__main__':
